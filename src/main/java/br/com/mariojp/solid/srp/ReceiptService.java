@@ -5,18 +5,12 @@ public class ReceiptService {
 	public String generate(Order order) {
 		double subtotal = order.getItems().stream().mapToDouble(i -> i.getUnitPrice() * i.getQuantity()).sum();
         TaxCalculator tax = new TaxCalculator();
-        double taxa = tax.calculaTaxa(subtotal,0.10);
-		 //Taxa 10 fixa :(
+        String taxHateString = System.getProperty("tax.rate");
+        double porcentagem = Double.parseDouble(taxHateString);
+        double taxa = tax.calculaTaxa(subtotal,porcentagem);
 		double total = subtotal + taxa;
-		StringBuilder sb = new StringBuilder(); //Formatando o Recibo
-		sb.append("=== RECIBO ===\n");
-		for (var i : order.getItems()) {
-			sb.append(i.getName()).append(" x").append(i.getQuantity()).append(" = ").append(i.getUnitPrice() * i.getQuantity())
-					.append("\n");
-		}
-		sb.append("Subtotal: ").append(subtotal).append("\n");
-		sb.append("Tax: ").append(tax).append("\n");
-		sb.append("Total: ").append(total).append("\n");
-		return sb.toString();
+		ReceiptFormatter rf = new ReceiptFormatter();
+        String texto = rf.montarTexto(order, subtotal, taxa, total);
+        return texto;
 	}
 }
